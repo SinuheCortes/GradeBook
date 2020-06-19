@@ -7,8 +7,20 @@ namespace GradeBook
     {
         static void Main(string[] args)
         {
-            var book = new Book("Sinuhé");
+            var book = new InMemoryBook("Sinuhé");
 
+            EnterGrades(book);
+            var result = book.GetStatistics();
+
+            Console.WriteLine($"La calificación miníma es: {result.Low}");
+            Console.WriteLine($"La calificación más alta es: {result.High}");
+            Console.WriteLine($"El promedio de calificación es: {result.Average:N1}");
+            Console.WriteLine($"La letra es: {result.letter}");
+
+        }
+
+        private static void EnterGrades(Book book)
+        {
             while (true)
             {
                 Console.WriteLine("Ingresa calificación o ingresa q para salir");
@@ -36,13 +48,11 @@ namespace GradeBook
                 }
 
             }
-            var result = book.GetStatistics();
+        }
 
-            Console.WriteLine($"La calificación miníma es: {result.Low}");
-            Console.WriteLine($"La calificación más alta es: {result.High}");
-            Console.WriteLine($"El promedio de calificación es: {result.Average:N1}");
-            Console.WriteLine($"La letra es: {result.letter}");
-
+        static void OnGradeAdded(Object sender, EventArgs e)
+        {
+            Console.WriteLine("Calificación fue agregada");
         }
     }
 }

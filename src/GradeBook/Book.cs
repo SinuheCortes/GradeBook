@@ -3,15 +3,38 @@ using System.Collections.Generic;
 
 namespace GradeBook
 {
-    public class Book
+    public delegate void GradeAddedDelegate(Object sender, EventArgs args);
+
+    public class NamedObject
     {
-        public Book(string name)
+        public NamedObject(string name)
+        {
+            Name = name;
+        }
+
+        public string Name
+        {
+            get;
+            set;
+        }
+    }
+
+    public abstract class Book : NamedObject
+    {
+        public Book(string name) : base(name)
+        {
+        }
+
+        public abstract void AddGrade(double grade);
+    }
+    public class InMemoryBook : Book
+    {
+        public InMemoryBook(string name) : base(name)
         {
             grades = new List<double>();
             Name = name;
         }
-
-        public void AddLetterGrade(char letter)
+        public void AddGrade(char letter)
         {
             switch (letter)
             {
@@ -30,11 +53,15 @@ namespace GradeBook
             }
 
         }
-        public void AddGrade(double grade)
+        public override void AddGrade(double grade)
         {
             if (grade >= 0 && grade <= 100)
             {
                 grades.Add(grade);
+                if(GradeAdded != null)
+                {
+                    GradeAdded(this, new EventArgs());
+                }
             }
             else
             {
@@ -42,6 +69,7 @@ namespace GradeBook
             }
         }
 
+        public event GradeAddedDelegate GradeAdded;
         public Statistics GetStatistics()
         {
             Statistics result = new Statistics();
@@ -81,6 +109,6 @@ namespace GradeBook
             return result;
         }
         private List<double> grades;
-        public string Name;
+        readonly string category = "Science";
     }
 }

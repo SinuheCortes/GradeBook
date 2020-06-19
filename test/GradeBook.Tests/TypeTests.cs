@@ -3,8 +3,24 @@ using Xunit;
 
 namespace GradeBook.Tests
 {
+    public delegate string WriteLogDelegate(string logMessage);
     public class TypeTests
     {
+        [Fact]
+        public void WriteLogDelegateCanPointMethod()
+        {
+            WriteLogDelegate log;
+
+            log = returnMessage;
+
+            var result = log("Hello");
+
+            Assert.Equal("Hello", result);
+        }
+        string returnMessage(string message)
+        {
+            return message;
+        }
         [Fact]
         public void Test1()
         {
@@ -34,9 +50,9 @@ namespace GradeBook.Tests
 
         }
 
-        private void GetBookSetName(ref Book book, string name)
+        private void GetBookSetName(ref InMemoryBook book, string name)
         {
-            book = new Book(name);
+            book = new InMemoryBook(name);
         }
 
 
@@ -51,9 +67,9 @@ namespace GradeBook.Tests
 
         }
 
-        private void GetBookSetName(Book book, string name)
+        private void GetBookSetName(InMemoryBook book, string name)
         {
-            book = new Book(name);
+            book = new InMemoryBook(name);
             book.Name = name;
         }
 
@@ -69,7 +85,7 @@ namespace GradeBook.Tests
 
         }
 
-        private void SetName(Book book, string name)
+        private void SetName(InMemoryBook book, string name)
         {
             book.Name = name;
         }
@@ -99,9 +115,9 @@ namespace GradeBook.Tests
             Assert.True(Object.ReferenceEquals(book1, book2));
         }
 
-        Book GetBook(string name)
+        InMemoryBook GetBook(string name)
         {
-            return new Book(name);
+            return new InMemoryBook(name);
         }
     }
 }
