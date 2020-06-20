@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace GradeBook
 {
@@ -19,13 +20,62 @@ namespace GradeBook
         }
     }
 
-    public abstract class Book : NamedObject
+    public interface IBook
+    {
+        void AddGrade(double grade);
+        Statistics GetStatistics();
+        string Name { get; }
+        event GradeAddedDelegate GradeAdded;
+    }
+    public abstract class Book : NamedObject, IBook
     {
         public Book(string name) : base(name)
         {
         }
 
+        public abstract event GradeAddedDelegate GradeAdded;
+
         public abstract void AddGrade(double grade);
+
+        public abstract Statistics GetStatistics();
+    }
+
+    public class DiskBook : Book
+    {
+        public DiskBook(string name) : base(name)
+        {
+
+        }
+
+        public override event GradeAddedDelegate GradeAdded;
+
+        public override void AddGrade(double grade)
+        {
+            using (var writer = File.AppendText($"{Name}.txt"))
+            {
+                writer.WriteLine(grade);
+                if (GradeAdded != null)
+                {
+                    GradeAdded(this, new EventArgs());
+                }
+            }
+        }
+
+        public override Statistics GetStatistics()
+        {
+            var result = new Statistics();
+            using(var reader = File.OpenText($"{Name}.txt"))
+            {
+                var line = reader.ReadLine();
+                while(line != null)
+                {
+                    var number = double.Parse(line);
+                    result.Add(number);
+                    line = reader.ReadLine();
+                }
+            }
+            return result;
+        }
     }
     public class InMemoryBook : Book
     {
@@ -58,7 +108,7 @@ namespace GradeBook
             if (grade >= 0 && grade <= 100)
             {
                 grades.Add(grade);
-                if(GradeAdded != null)
+                if (GradeAdded != null)
                 {
                     GradeAdded(this, new EventArgs());
                 }
@@ -69,43 +119,17 @@ namespace GradeBook
             }
         }
 
-        public event GradeAddedDelegate GradeAdded;
-        public Statistics GetStatistics()
+        public override event GradeAddedDelegate GradeAdded;
+        public override Statistics GetStatistics()
         {
             Statistics result = new Statistics();
-            result.Average = 0.0;
-            result.Low = double.MaxValue;
-            result.High = double.MinValue;
 
-            foreach (double grade in grades)
+            for (var index = 0; index < grades.Count; index++)
             {
-                result.Low = Math.Min(grade, result.Low);
-                result.High = Math.Max(grade, result.High);
-                result.Average += grade;
+                result.Add(grades[index]);
+
             }
-            result.Average /= grades.Count;
-            switch (result.Average)
-            {
-                case var d when d >= 90.0:
-                    result.letter = 'A';
-                    break;
 
-                case var d when d >= 80.0:
-                    result.letter = 'B';
-                    break;
-
-                case var d when d >= 70.0:
-                    result.letter = 'C';
-                    break;
-
-                case var d when d >= 60.0:
-                    result.letter = 'D';
-                    break;
-
-                default:
-                    result.letter = 'F';
-                    break;
-            }
             return result;
         }
         private List<double> grades;
