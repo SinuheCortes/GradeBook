@@ -26,3 +26,4 @@ You can learn C# in Pluralsight.
 Get the curse:
 https://app.pluralsight.com/library/courses/csharp-fundamentals-dev/table-of-contents
 
+Autor: Sinuhé Cortés V.
